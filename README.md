@@ -200,7 +200,7 @@ sqlc generate
 |----------|---------|-------------|
 | SERVER_PORT | 3000 | HTTP server port |
 | DB_HOST | localhost | PostgreSQL host |
-| DB_PORT | 5432 | PostgreSQL port |
+| DB_PORT | 5433 | PostgreSQL port |
 | DB_USER | postgres | PostgreSQL user |
 | DB_PASSWORD | postgres | PostgreSQL password |
 | DB_NAME | dob_calculator | Database name |
