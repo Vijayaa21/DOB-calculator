@@ -52,7 +52,7 @@ func Connect(cfg *config.DatabaseConfig) (*Database, error) {
 		zap.String("database", cfg.DBName),
 	)
 
-	queries := sqlc.New(&pgxPoolAdapter{pool: pool})
+	queries := sqlc.New(pool)
 
 	return &Database{
 		Pool:    pool,
@@ -66,55 +66,4 @@ func (db *Database) Close() {
 		db.Pool.Close()
 		logger.Info("Database connection closed")
 	}
-}
-
-// pgxPoolAdapter adapts pgxpool.Pool to sqlc.DBTX interface
-type pgxPoolAdapter struct {
-	pool *pgxpool.Pool
-}
-
-func (a *pgxPoolAdapter) Exec(ctx context.Context, sql string, args ...interface{}) (int64, error) {
-	result, err := a.pool.Exec(ctx, sql, args...)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
-func (a *pgxPoolAdapter) Query(ctx context.Context, sql string, args ...interface{}) (sqlc.Rows, error) {
-	rows, err := a.pool.Query(ctx, sql, args...)
-	if err != nil {
-		return nil, err
-	}
-	return &pgxRowsAdapter{rows: rows}, nil
-}
-
-func (a *pgxPoolAdapter) QueryRow(ctx context.Context, sql string, args ...interface{}) sqlc.Row {
-	return a.pool.QueryRow(ctx, sql, args...)
-}
-
-// pgxRowsAdapter adapts pgx.Rows to sqlc.Rows interface
-type pgxRowsAdapter struct {
-	rows interface {
-		Close()
-		Err() error
-		Next() bool
-		Scan(dest ...interface{}) error
-	}
-}
-
-func (r *pgxRowsAdapter) Close() {
-	r.rows.Close()
-}
-
-func (r *pgxRowsAdapter) Err() error {
-	return r.rows.Err()
-}
-
-func (r *pgxRowsAdapter) Next() bool {
-	return r.rows.Next()
-}
-
-func (r *pgxRowsAdapter) Scan(dest ...interface{}) error {
-	return r.rows.Scan(dest...)
 }

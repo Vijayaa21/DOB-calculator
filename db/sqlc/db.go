@@ -6,23 +6,15 @@ package sqlc
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type DBTX interface {
-	Exec(context.Context, string, ...interface{}) (int64, error)
-	Query(context.Context, string, ...interface{}) (Rows, error)
-	QueryRow(context.Context, string, ...interface{}) Row
-}
-
-type Row interface {
-	Scan(dest ...interface{}) error
-}
-
-type Rows interface {
-	Close()
-	Err() error
-	Next() bool
-	Scan(dest ...interface{}) error
+	Exec(context.Context, string, ...interface{}) (pgconn.CommandTag, error)
+	Query(context.Context, string, ...interface{}) (pgx.Rows, error)
+	QueryRow(context.Context, string, ...interface{}) pgx.Row
 }
 
 func New(db DBTX) *Queries {
