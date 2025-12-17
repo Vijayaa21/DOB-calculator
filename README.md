@@ -74,6 +74,8 @@ docker-compose down
 3. **Install Dependencies**
    ```bash
    go mod download
+  # optional, if you plan to modify SQL in db/queries
+  go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
    ```
 
 4. **Run the Application**
@@ -82,6 +84,8 @@ docker-compose down
    ```
 
 The server will start on `http://localhost:3000`
+
+> Note (Windows / local Postgres): If your local PostgreSQL runs on a different port (e.g. 5433), update `.env` accordingly. This repo’s `.env.example` uses 5433 by default.
 
 ## 📊 API Endpoints
 
@@ -187,6 +191,12 @@ If you modify the SQL queries, regenerate the SQLC code:
 sqlc generate
 ```
 
+If you don’t have `sqlc` yet, install it first:
+
+```bash
+go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+```
+
 ## 🔒 Middleware Features
 
 - **Request ID**: Injects unique `X-Request-ID` header in responses
@@ -209,3 +219,53 @@ sqlc generate
 ## 📜 License
 
 MIT
+
+---
+
+## ✅ Deliverables Checklist
+
+- Store dob in DB: users.dob (DATE) is persisted via SQLC queries.
+- Age calculated dynamically: handled in `internal/models/user.go` and returned by GET endpoints.
+- SQLC used for DB access: queries in `db/queries/users.sql`, generated code in `db/sqlc/*`, config `sqlc.yaml`.
+- Input validation: `go-playground/validator` in `internal/handler/user_handler.go`.
+- Logging: Uber Zap set up in `internal/logger`, request logs via middleware.
+- Clean HTTP status codes and error handling: centralized error handler + appropriate codes in handlers.
+
+### Bonus (Included)
+- Docker support: `Dockerfile` + `docker-compose.yml` (Postgres + app).
+- Pagination: `/users?page=1&page_size=10` and `paginated=true` for metadata.
+- Unit tests: age/date helpers covered in `internal/models/user_test.go`.
+- Middleware: `X-Request-ID` injection and request duration logging in `internal/middleware`.
+
+---
+
+## 🔗 Submission
+
+1. Initialize a Git repository and push to GitHub:
+
+```bash
+git init
+git add .
+git commit -m "Initial submission: DOB Calculator API"
+git branch -M main
+git remote add origin https://github.com/<your-gh-username>/<your-repo-name>.git
+git push -u origin main
+```
+
+2. Share the repository link.
+
+---
+
+## 🛠️ Troubleshooting
+
+- Port already in use: stop existing process on 3000 or set `SERVER_PORT`.
+  ```powershell
+  Get-NetTCPConnection -LocalPort 3000 -State Listen | Select-Object -ExpandProperty OwningProcess | % { Stop-Process -Id $_ -Force }
+  ```
+- Local Postgres on a non-default port (e.g. 5433): update `DB_PORT` in `.env`.
+- Creating DB/table manually (Windows example):
+  ```powershell
+  $env:PGPASSWORD='your_password'
+  & "C:\\Program Files\\PostgreSQL\\18\\bin\\psql.exe" -U postgres -p 5433 -c "CREATE DATABASE dob_calculator;"
+  & "C:\\Program Files\\PostgreSQL\\18\\bin\\psql.exe" -U postgres -p 5433 -d dob_calculator -c "CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name TEXT NOT NULL, dob DATE NOT NULL);"
+  ```
