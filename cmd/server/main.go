@@ -18,7 +18,6 @@ import (
 )
 
 func main() {
-	// Initialize logger
 	if err := logger.Init(); err != nil {
 		panic("Failed to initialize logger: " + err.Error())
 	}
@@ -26,13 +25,12 @@ func main() {
 
 	logger.Info("Starting DOB Calculator API")
 
-	// Load configuration
+
 	cfg, err := config.Load()
 	if err != nil {
 		logger.Fatal("Failed to load configuration", zap.Error(err))
 	}
 
-	// Connect to database
 	database, err := db.Connect(&cfg.Database)
 	if err != nil {
 		logger.Fatal("Failed to connect to database", zap.Error(err))
@@ -65,7 +63,6 @@ func main() {
 		}
 	}()
 
-	// Start server
 	addr := ":" + cfg.Server.Port
 	logger.Info("Server starting", zap.String("address", addr))
 	if err := app.Listen(addr); err != nil {
