@@ -1,4 +1,4 @@
-# DOB Calculator API
+# DOB Calculator API using GOLANG
 
 A RESTful API built with Go to manage users with their name and date of birth. The API calculates and returns a user's age dynamically.
 
